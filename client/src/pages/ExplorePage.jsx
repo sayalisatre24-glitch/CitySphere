@@ -88,6 +88,9 @@ const ExplorePage = () => {
   // Voice search state
   const [isListening, setIsListening] = useState(false);
 
+  // Mobile View Mode ('list' or 'map')
+  const [mobileTab, setMobileTab] = useState('list');
+
   // If queryParam exists on load, trigger search
   useEffect(() => {
     if (queryParam.trim()) {
@@ -237,28 +240,79 @@ const ExplorePage = () => {
     return true;
   });
 
-  const handleCardClick = (place) => {
+  const handleCardClick = (place, shouldSwitchTab = false) => {
     setSelectedMapPlace(place);
     if (place.lat && place.lng) {
       setTargetLocation({ lat: place.lat, lng: place.lng, name: place.name });
     }
+    if (shouldSwitchTab || window.innerWidth <= 768) {
+      setMobileTab('map');
+    }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Mobile-Only Top Tab Bar Switcher */}
+      <div className="mobile-only" style={{ display: 'flex', background: 'white', padding: 4, borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', gap: 4 }}>
+        <button
+          type="button"
+          onClick={() => setMobileTab('list')}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: 'var(--radius-md)',
+            border: 'none',
+            background: mobileTab === 'list' ? '#0f172a' : 'transparent',
+            color: mobileTab === 'list' ? 'white' : 'var(--text-secondary)',
+            fontWeight: 800,
+            fontSize: '0.84rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span>📋 Places List ({filteredPlaces.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('map')}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: 'var(--radius-md)',
+            border: 'none',
+            background: mobileTab === 'map' ? 'var(--emerald)' : 'transparent',
+            color: mobileTab === 'map' ? 'white' : 'var(--text-secondary)',
+            fontWeight: 800,
+            fontSize: '0.84rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span>🗺️ Interactive Map</span>
+        </button>
+      </div>
+
       {/* 2-COLUMN WIDESCREEN WORKSPACE: LEFT SEARCH & PLACES (46%) / RIGHT INTERACTIVE MAP (54%) */}
       <div className="explore-workspace-grid">
         
         {/* ================= LEFT COLUMN: SEARCH, FILTERS & CARDS ================= */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className={`explore-left-col ${mobileTab === 'list' ? 'mobile-show' : 'mobile-hide'}`} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           
           {/* 1. Multi-API Live Search Bar (Direct Search Without Dropdown List) */}
           <div className="card" style={{ padding: '10px 14px', background: 'white' }}>
             <form
               onSubmit={handleSearchSubmit}
-              style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap' }}
             >
-              <Search size={18} color="var(--text-muted)" />
+              <Search size={18} color="var(--text-muted)" style={{ flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
@@ -273,13 +327,14 @@ const ExplorePage = () => {
                     handleSearchSubmit(e);
                   }
                 }}
-                placeholder="Search any location in Maharashtra (e.g. Sinhagad, Mumbai, Lonavala, Ajanta)..."
+                placeholder="Search places in Maharashtra..."
                 style={{
                   border: 'none',
                   outline: 'none',
-                  fontSize: '0.9rem',
+                  fontSize: '0.88rem',
                   color: 'var(--text-primary)',
                   flex: 1,
+                  minWidth: 0,
                   background: 'transparent'
                 }}
               />
@@ -307,7 +362,8 @@ const ExplorePage = () => {
                   borderRadius: 'var(--radius-full)',
                   border: 'none',
                   background: isListening ? 'var(--rose-light)' : 'var(--bg-subtle)',
-                  color: isListening ? 'var(--rose)' : 'var(--text-secondary)'
+                  color: isListening ? 'var(--rose)' : 'var(--text-secondary)',
+                  flexShrink: 0
                 }}
                 title="Voice Search"
               >
@@ -319,9 +375,10 @@ const ExplorePage = () => {
                 type="submit"
                 className="btn btn-emerald btn-sm"
                 style={{
-                  padding: '6px 14px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700
+                  padding: '6px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  flexShrink: 0
                 }}
               >
                 <span>Search</span>
@@ -336,24 +393,25 @@ const ExplorePage = () => {
                 }}
                 className="btn btn-secondary btn-sm"
                 style={{
-                  padding: '6px 10px',
-                  fontSize: '0.78rem',
+                  padding: '6px 8px',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 4
+                  gap: 4,
+                  flexShrink: 0
                 }}
                 title="AI Landmark Scanner"
               >
-                <Scan size={14} color="var(--emerald)" />
-                <span>AI Scan</span>
+                <Scan size={13} color="var(--emerald)" />
+                <span className="desktop-only">AI Scan</span>
               </button>
             </form>
           </div>
 
           {/* 2. Popular Location Quick Suggestion Chips & Filter Badges */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 2, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 2, alignItems: 'center', maxWidth: '100%' }}>
               <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                 Quick:
               </span>
@@ -384,11 +442,11 @@ const ExplorePage = () => {
             </div>
 
             {/* Quick Filter Chips */}
-            <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <button
                 onClick={() => setSelectedBudget(selectedBudget === 'under200' ? 'all' : 'under200')}
                 className={`filter-chip ${selectedBudget === 'under200' ? 'active' : ''}`}
-                style={{ fontSize: '0.72rem', padding: '3px 8px' }}
+                style={{ fontSize: '0.72rem', padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 'var(--radius-full)', background: selectedBudget === 'under200' ? '#0f172a' : 'white', color: selectedBudget === 'under200' ? 'white' : 'var(--text-primary)', cursor: 'pointer' }}
               >
                 <DollarSign size={11} /> &lt; ₹200
               </button>
@@ -396,7 +454,7 @@ const ExplorePage = () => {
               <button
                 onClick={() => setMinRating(minRating === '4.5' ? '0' : '4.5')}
                 className={`filter-chip ${minRating === '4.5' ? 'active' : ''}`}
-                style={{ fontSize: '0.72rem', padding: '3px 8px' }}
+                style={{ fontSize: '0.72rem', padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 'var(--radius-full)', background: minRating === '4.5' ? '#0f172a' : 'white', color: minRating === '4.5' ? 'white' : 'var(--text-primary)', cursor: 'pointer' }}
               >
                 <Star size={11} /> 4.5+ ★
               </button>
@@ -404,7 +462,7 @@ const ExplorePage = () => {
               <button
                 onClick={() => setWheelchairOnly(!wheelchairOnly)}
                 className={`filter-chip ${wheelchairOnly ? 'active' : ''}`}
-                style={{ fontSize: '0.72rem', padding: '3px 8px' }}
+                style={{ fontSize: '0.72rem', padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 'var(--radius-full)', background: wheelchairOnly ? '#0f172a' : 'white', color: wheelchairOnly ? 'white' : 'var(--text-primary)', cursor: 'pointer' }}
               >
                 <Accessibility size={11} /> Accessible
               </button>
@@ -412,7 +470,7 @@ const ExplorePage = () => {
           </div>
 
           {/* 3. Category Filter Tabs */}
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2, width: '100%' }}>
             {mainCategories.map(cat => {
               const isActive = activeCategory === cat.id;
               return (
@@ -430,7 +488,8 @@ const ExplorePage = () => {
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     boxShadow: isActive ? '0 2px 6px rgba(15, 23, 42, 0.25)' : 'var(--shadow-sm)',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    flexShrink: 0
                   }}
                 >
                   {cat.label}
@@ -442,8 +501,8 @@ const ExplorePage = () => {
           {/* 4. Discovered Locations Count & Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                {searchQuery ? `Search Results for "${searchQuery}"` : 'Discovered Places'} ({filteredPlaces.length})
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {searchQuery ? `"${searchQuery}"` : 'Discovered Places'} ({filteredPlaces.length})
               </span>
               {searchQuery && (
                 <span className="badge badge-emerald" style={{ fontSize: '0.68rem' }}>
@@ -458,13 +517,14 @@ const ExplorePage = () => {
                 className="btn btn-secondary btn-sm"
                 style={{ fontSize: '0.72rem', padding: '3px 8px' }}
               >
-                Show All Places
+                Show All
               </button>
             )}
           </div>
 
-          {/* 5. Destination Cards List (Bold & Bright Location Names, Smooth Scroll) */}
+          {/* 5. Destination Cards List */}
           <div
+            className="explore-cards-container"
             style={{
               display: 'flex',
               flexDirection: 'column',
@@ -522,7 +582,7 @@ const ExplorePage = () => {
                         {/* Bold & Bright Place Name */}
                         <h4
                           style={{
-                            fontSize: '1.25rem',
+                            fontSize: '1.2rem',
                             fontWeight: 900,
                             color: '#0f172a',
                             letterSpacing: '-0.02em',
@@ -573,7 +633,7 @@ const ExplorePage = () => {
                       {place.description}
                     </p>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: 10, marginTop: 4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', paddingTop: 10, marginTop: 4, flexWrap: 'wrap', gap: 6 }}>
                       <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--emerald-dark)' }}>
                         💰 {place.cost || 'Free Entry'}
                       </span>
@@ -582,7 +642,7 @@ const ExplorePage = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCardClick(place);
+                            handleCardClick(place, true);
                           }}
                           className="btn btn-secondary btn-sm"
                           style={{ fontSize: '0.75rem', padding: '4px 10px' }}
@@ -623,7 +683,7 @@ const ExplorePage = () => {
         </div>
 
         {/* ================= RIGHT COLUMN: INTERACTIVE LEAFLET MAP ================= */}
-        <div style={{ position: 'sticky', top: 76, height: 'calc(100vh - 100px)' }}>
+        <div className={`explore-right-col ${mobileTab === 'map' ? 'mobile-show' : 'mobile-hide'}`} style={{ position: 'sticky', top: 76, height: 'calc(100vh - 100px)' }}>
           <div className="card" style={{ padding: '12px', background: 'white', borderRadius: 'var(--radius-xl)', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexShrink: 0 }}>
               <div>
@@ -642,7 +702,7 @@ const ExplorePage = () => {
             </div>
 
             {/* Interactive Leaflet Map Instance */}
-            <div style={{ flex: 1, minHeight: '480px', position: 'relative' }}>
+            <div style={{ flex: 1, minHeight: '400px', position: 'relative' }}>
               <InteractiveMapComponent
                 targetLocation={targetLocation}
                 customPlaces={filteredPlaces}
@@ -654,6 +714,37 @@ const ExplorePage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Floating Quick Action Pill for Mobile */}
+      <div className="mobile-only" style={{ position: 'fixed', bottom: 20, right: 16, zIndex: 1100 }}>
+        <button
+          type="button"
+          onClick={() => setMobileTab(mobileTab === 'list' ? 'map' : 'list')}
+          className="btn btn-emerald"
+          style={{
+            borderRadius: 'var(--radius-full)',
+            boxShadow: '0 6px 20px rgba(16, 185, 129, 0.45)',
+            padding: '10px 18px',
+            fontWeight: 800,
+            fontSize: '0.85rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8
+          }}
+        >
+          {mobileTab === 'list' ? (
+            <>
+              <MapPin size={16} />
+              <span>Map View</span>
+            </>
+          ) : (
+            <>
+              <Compass size={16} />
+              <span>Places List ({filteredPlaces.length})</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* AI SCANNER MODAL */}

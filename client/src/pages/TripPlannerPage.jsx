@@ -393,7 +393,7 @@ const TripPlannerPage = () => {
               </h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 14, marginBottom: 14 }}>
+            <div className="planner-form-row-2">
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Itinerary Title</label>
                 <input
@@ -417,7 +417,7 @@ const TripPlannerPage = () => {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div className="planner-form-row-3">
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700 }}>Duration</label>
                 <select
@@ -462,7 +462,7 @@ const TripPlannerPage = () => {
               <label className="form-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginBottom: 6 }}>
                 Preferred Mode of Transport
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+              <div className="planner-transport-grid">
                 {transportOptions.map(t => {
                   const Icon = t.icon;
                   const isSelected = transportMode === t.id;

@@ -112,19 +112,19 @@ const HomePage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-      {/* 1. HERO BANNER — CITYSPHERE (Laptop Optimized 2-Column Balance) */}
+      {/* 1. HERO BANNER — CITYSPHERE (Responsive Mobile & Laptop Balance) */}
       <section
         style={{
           position: 'relative',
           borderRadius: 'var(--radius-xl)',
           overflow: 'hidden',
-          padding: '32px 36px',
+          padding: '24px',
           background: 'linear-gradient(135deg, #0b1329 0%, #111c38 60%, #064e3b 100%)',
           color: 'white',
           boxShadow: 'var(--shadow-lg)'
         }}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(280px, 0.9fr)', gap: 28, alignItems: 'center' }}>
+        <div className="hero-grid">
           {/* Left Column: Title, Actions & Search */}
           <div>
             {/* App Name Badge */}
